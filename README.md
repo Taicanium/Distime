@@ -14,16 +14,22 @@ There are differing forms of time dilation which are all caused by different thi
 - Speed of the local observer relative to their planet; if the observer is in a vehicle moving at 3 m/s, enter 3.
 - Speed of the control observer relative to their planet
 
+
 Distances should be in meters.
+
 Speeds should be in meters per second.
+
 The numbers that are output are formatted as the number of seconds that pass for the coordinate observer for every second that passes for the local or control observer: If the output for the local observer is 1.009, then for every second that passes for the local observer, 1.009 seconds pass for the coordinate observer.
 
-Unless otherwise specified, all numbers should be in their raw forms. The program will tell you when to use E-notation; if it doesn't, enter the entire number including all zeros.
+Unless otherwise specified, all numbers should be in their raw forms. The program will tell you when to use E-notation; if it doesn't, enter the entire number including all zeros. It can take it.
 
 A text file is included with the release, containing information for the solar system that can be copied and pasted into the program. If you choose to use this file, all you need to type in is the reference bodies, distances from the reference bodies, and observer speeds.
+
 
 Some useful information:
 
 An observer on the surface of the earth would be 6371000 meters from its center.
+
 The speed of light in a vacuum is 299792458 meters per second.
+
 Ninety-nine percent of the speed of light in a vacuum is about 296794533 meters per second.
