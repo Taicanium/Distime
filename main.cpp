@@ -92,7 +92,6 @@ int main()
 	for (int i = 0; i < numBod; i++)
 	{
 		long double additive = bodies[i].MASS_BASE;
-		printf_s("%.4f %.4f\n", bodies[i].MASS_BASE, bodies[i].MASS_EXPONENT);
 		if (bodies[i].MASS_EXPONENT > 12) { additive *= powl(10, 12L); }
 		else { additive *= powl(10, bodies[i].MASS_EXPONENT); }
 		additive /= powl(fabs(bodies[i].DISTANCE_FROM_CENTER - (bodies[locBod].DISTANCE_FROM_CENTER - locDis)), 2);
