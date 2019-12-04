@@ -22,10 +22,10 @@ int main()
 	int numBod = 0;
 	int locBod = 0;
 	int conBod = 0;
-	long double orbSp = 0;
-	long double conSp = 0;
-	long double locDis = 0;
-	long double conDis = 0;
+	long double orbSp = 0.0;
+	long double conSp = 0.0;
+	long double locDis = 0.0;
+	long double conDis = 0.0;
 	long double Dg = 0.0;
 	long double Dv = 0.0;
 	long double Dr = 0.0;
@@ -77,12 +77,12 @@ int main()
 
 		if (i == locBod)
 		{
-			bodies[i].U_BASE /= locDis;
+			bodies[i].U_BASE /= powl(locDis, 2);
 		}
-
+		
 		if (i == conBod)
 		{
-			bodies[i].U_BASE /= conDis;
+			bodies[i].U_BASE /= powl(conDis, 2);
 		}
 
 		while (bodies[i].U_BASE >= 10.0)
@@ -111,6 +111,12 @@ int main()
 					bodies[i].U_BASE /= 10.0;
 					bodies[i].U_EXPONENT += 1;
 				}
+
+				while (bodies[i].U_BASE < 1.0)
+				{
+					bodies[i].U_BASE *= 10.0;
+					bodies[i].U_EXPONENT -= 1;
+				}
 			}
 		}
 	}
@@ -126,11 +132,11 @@ int main()
 	CON_U = bodies[conBod].U_BASE;
 
 	UDIV = LOC_U;
-	UDIV *= 2.0;
 	if (bodies[locBod].U_EXPONENT > 12) { UDIV *= powl(10, 12L); }
 	else { UDIV *= powl(10, bodies[locBod].U_EXPONENT); }
 	UDIV /= C_SQ;
 	if (bodies[locBod].U_EXPONENT > 12) { UDIV *= powl(10, bodies[locBod].U_EXPONENT - 12L); }
+	UDIV *= 2.0;
 
 	VDIV = powl(bodies[locBod].SPEED, 2);
 	VDIV /= C_SQ;
@@ -153,11 +159,11 @@ int main()
 	if (conBod != -1)
 	{
 		UDIV = CON_U;
-		UDIV *= 2.0;
 		if (bodies[conBod].U_EXPONENT > 12) { UDIV *= powl(10, 12L); }
 		else { UDIV *= powl(10, bodies[conBod].U_EXPONENT); }
 		UDIV /= C_SQ;
 		if (bodies[conBod].U_EXPONENT > 12) { UDIV *= powl(10, bodies[conBod].U_EXPONENT - 12L); }
+		UDIV *= 2.0;
 
 		VDIV = powl(bodies[conBod].SPEED, 2);
 		VDIV /= C_SQ;
@@ -184,7 +190,7 @@ int main()
 	printf_s("\nTOTAL TIME DILATION OF CONTROL OBSERVER : %.16Lf\n", DCon);
 	printf_s("\nTOTAL DIFFERENCE BETWEEN OBSERVERS : %.16Lf\n", fabs(DCon - D));
 
-	cin.get();
+	cin >> sIn;
 
 	return 0;
 }
