@@ -3,8 +3,9 @@
 #include <math.h>
 using namespace std;
 
-const double G = 0.0000000000667408;
-const long long C_SQ = 89875517873681764LL;
+const long double G = 6.67408;
+const long C = 299792458L;
+const long double C_SQ = powl(299792458, 2);
 
 struct BODY
 {
@@ -12,8 +13,6 @@ struct BODY
 	long double MASS_EXPONENT;
 	long double DISTANCE_FROM_CENTER;
 	long double SPEED;
-	long double U_BASE;
-	long double U_EXPONENT;
 };
 
 int main()
@@ -72,83 +71,45 @@ int main()
 
 	for (int i = 0; i < numBod; i++)
 	{
-		bodies[i].U_BASE = G * bodies[i].MASS_BASE;
-		bodies[i].U_EXPONENT = bodies[i].MASS_EXPONENT;
-
-		if (i == locBod)
+		while (bodies[i].MASS_BASE >= 10.0)
 		{
-			bodies[i].U_BASE /= powl(locDis, 2);
-		}
-		
-		if (i == conBod)
-		{
-			bodies[i].U_BASE /= powl(conDis, 2);
+			bodies[i].MASS_BASE /= 10.0;
+			bodies[i].MASS_EXPONENT += 1.0;
 		}
 
-		while (bodies[i].U_BASE >= 10.0)
+		while (bodies[i].MASS_BASE < 1.0)
 		{
-			bodies[i].U_BASE /= 10.0;
-			bodies[i].U_EXPONENT += 1;
-		}
-
-		while (bodies[i].U_BASE < 1.0)
-		{
-			bodies[i].U_BASE *= 10.0;
-			bodies[i].U_EXPONENT -= 1;
+			bodies[i].MASS_BASE *= 10.0;
+			bodies[i].MASS_EXPONENT -= 1.0;
 		}
 	}
 
-	for (int i = 0; i < numBod; i++)
-	{
-		for (int j = 0; j < numBod; j++)
-		{
-			if (i != j)
-			{
-				bodies[i].U_BASE += (G * bodies[j].MASS_BASE) / fabs(bodies[i].DISTANCE_FROM_CENTER - bodies[j].DISTANCE_FROM_CENTER);
-
-				while (bodies[i].U_BASE >= 10.0)
-				{
-					bodies[i].U_BASE /= 10.0;
-					bodies[i].U_EXPONENT += 1;
-				}
-
-				while (bodies[i].U_BASE < 1.0)
-				{
-					bodies[i].U_BASE *= 10.0;
-					bodies[i].U_EXPONENT -= 1;
-				}
-			}
-		}
-	}
-
+	long double U = 0.0;
 	long double UDIV;
 	long double VDIV;
 	long double RDIV;
 
-	long double LOC_U;
-	long double CON_U;
-
-	LOC_U = bodies[locBod].U_BASE;
-	CON_U = bodies[conBod].U_BASE;
-
-	UDIV = LOC_U;
-	if (bodies[locBod].U_EXPONENT > 12) { UDIV *= powl(10, 12L); }
-	else { UDIV *= powl(10, bodies[locBod].U_EXPONENT); }
-	UDIV /= C_SQ;
-	if (bodies[locBod].U_EXPONENT > 12) { UDIV *= powl(10, bodies[locBod].U_EXPONENT - 12L); }
-	UDIV *= 2.0;
-
-	VDIV = powl(bodies[locBod].SPEED, 2);
-	VDIV /= C_SQ;
-
-	RDIV = powl(orbSp, 2);
-	RDIV /= C_SQ;
-	RDIV *= 1.0 / (1.0 - UDIV);
+	for (int i = 0; i < numBod; i++)
+	{
+		long double additive = bodies[i].MASS_BASE;
+		printf_s("%.4f %.4f\n", bodies[i].MASS_BASE, bodies[i].MASS_EXPONENT);
+		if (bodies[i].MASS_EXPONENT > 12) { additive *= powl(10, 12L); }
+		else { additive *= powl(10, bodies[i].MASS_EXPONENT); }
+		additive /= powl(fabs(bodies[i].DISTANCE_FROM_CENTER - (bodies[locBod].DISTANCE_FROM_CENTER - locDis)), 2);
+		if (bodies[i].MASS_EXPONENT > 12) { additive *= powl(10, bodies[i].MASS_EXPONENT - 12L); }
+		U += additive;
+	}
+	U *= 2.0;
+	U *= powl(10, -11);
+	U *= G;
+	UDIV = U / C_SQ;
+	VDIV = bodies[locBod].SPEED / C;
+	RDIV = orbSp / C;
 
 	Dg = 1.0 / sqrt(1.0 - UDIV);
 	Dv = 1.0 / sqrt(1.0 - VDIV);
 	Dr = 1.0 / sqrt(1.0 - RDIV);
-	D = 1.0 / sqrt(fabs(1.0 - UDIV - VDIV - RDIV));
+	D = 1.0 / sqrt((1.0 - UDIV) * (1.0 - VDIV) * (1.0 - RDIV));
 
 	printf_s("\nTIME DILATION DUE TO GRAVITY AT LOCATION OF LOCAL OBSERVER : %.16Lf\n", Dg);
 	printf_s("TIME DILATION DUE TO MOTION OF LOCAL BODY : %.16Lf\n", Dv);
@@ -158,15 +119,21 @@ int main()
 
 	if (conBod != -1)
 	{
-		UDIV = CON_U;
-		if (bodies[conBod].U_EXPONENT > 12) { UDIV *= powl(10, 12L); }
-		else { UDIV *= powl(10, bodies[conBod].U_EXPONENT); }
-		UDIV /= C_SQ;
-		if (bodies[conBod].U_EXPONENT > 12) { UDIV *= powl(10, bodies[conBod].U_EXPONENT - 12L); }
-		UDIV *= 2.0;
-
-		VDIV = powl(bodies[conBod].SPEED, 2);
-		VDIV /= C_SQ;
+		for (int i = 0; i < numBod; i++)
+		{
+			long double additive = bodies[i].MASS_BASE;
+			printf_s("%.4f %.4f\n", bodies[i].MASS_BASE, bodies[i].MASS_EXPONENT);
+			if (bodies[i].MASS_EXPONENT > 12) { additive *= powl(10, 12L); }
+			else { additive *= powl(10, bodies[i].MASS_EXPONENT); }
+			additive /= powl(fabs(bodies[i].DISTANCE_FROM_CENTER - (bodies[conBod].DISTANCE_FROM_CENTER - conDis)), 2);
+			if (bodies[i].MASS_EXPONENT > 12) { additive *= powl(10, bodies[i].MASS_EXPONENT - 12L); }
+			U += additive;
+		}
+		U *= 2.0;
+		U *= powl(10, -11);
+		U *= G;
+		UDIV = U / C_SQ;
+		VDIV = bodies[conBod].SPEED / C;
 	}
 	else
 	{
@@ -174,14 +141,12 @@ int main()
 		VDIV = 0.0;
 	}
 
-	RDIV = powl(conSp, 2);
-	RDIV /= C_SQ;
-	RDIV *= 1.0 / (1.0 - UDIV);
+	RDIV = conSp / C;
 
 	Dg = 1.0 / sqrt(1.0 - UDIV);
 	Dv = 1.0 / sqrt(1.0 - VDIV);
 	Dr = 1.0 / sqrt(1.0 - RDIV);
-	DCon = 1.0 / sqrt(fabs(1.0 - UDIV - VDIV - RDIV));
+	DCon = 1.0 / sqrt((1.0 - UDIV) * (1.0 - VDIV) * (1.0 - RDIV));
 
 	printf_s("\nTIME DILATION DUE TO GRAVITY AT LOCATION OF CONTROL OBSERVER : %.16Lf\n", Dg);
 	printf_s("TIME DILATION DUE TO MOTION OF CONTROL BODY : %.16Lf\n", Dv);
